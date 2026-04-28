@@ -20,13 +20,14 @@
   "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "dotnet restore && dotnet build",
-
+  "postCreateCommand": "dotnet dev-certs https && dotnet restore && dotnet build",
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {
       "extensions": [
-        "Postman.postman-for-vscode"
+        "Postman.postman-for-vscode",
+        "anysphere.csharp",
+        "nromanov.dotrush"
       ]
     }
   }
