@@ -1,27 +1,22 @@
 {
   "name": "crunchloop-dotnet-interview",
-
   // Update the 'dockerComposeFile' list if you have more compose files or use different names.
   // The .devcontainer/docker-compose.yml file contains any overrides you need/want to make.
-  "dockerComposeFile": ["docker-compose.yml"],
-
+  "dockerComposeFile": [
+    "docker-compose.yml"
+  ],
   // The 'service' property is the name of the service for the container that VS Code should
-	// use. Update this value and .devcontainer/docker-compose.yml to the real service name.
-	"service": "app",
-
+  // use. Update this value and .devcontainer/docker-compose.yml to the real service name.
+  "service": "app",
   // The optional 'workspaceFolder' property is the path VS Code should open by default when
   // connected. This is typically a file mount in .devcontainer/docker-compose.yml
-	"workspaceFolder": "/app",
-
+  "workspaceFolder": "/app",
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {},
-
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [],
-
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "dotnet restore && dotnet build",
-
+  "postCreateCommand": "dotnet dev-certs https && dotnet restore && dotnet build",
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {
@@ -30,7 +25,6 @@
       ]
     }
   }
-
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   // "remoteUser": "root"
 }
