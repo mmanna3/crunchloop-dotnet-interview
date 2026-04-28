@@ -1,5 +1,5 @@
 version: '3.8'
-
+name: crunchloop-exploration
 services:
   app:
     image: mcr.microsoft.com/devcontainers/dotnet:8.0
