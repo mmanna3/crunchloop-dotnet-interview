@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 name: crunchloop-exploration
 services:
   app:
@@ -13,3 +13,5 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=Password123
+    ports:
+      - "1433:1433"
