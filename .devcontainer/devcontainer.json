@@ -21,7 +21,9 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "Postman.postman-for-vscode"
+        "Postman.postman-for-vscode",
+        "anysphere.csharp",
+        "nromanov.dotrush"
       ]
     }
   }
