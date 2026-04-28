@@ -8,11 +8,11 @@
     }
   },
   "profiles": {
-    "TodoApi": {
+    "TodoApiExploration": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7027;http://localhost:5083",
+      "applicationUrl": "https://localhost:7028",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
