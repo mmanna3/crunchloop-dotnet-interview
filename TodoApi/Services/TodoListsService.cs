@@ -1,54 +1,34 @@
 using TodoApi.Models;
-using Microsoft.EntityFrameworkCore;
+using TodoApi.Persistence;
 
 namespace TodoApi.Services
 {
-    public class TodoListService(TodoContext context) : ITodoListService
+    public class TodoListService(ITodoListsRepository todoListsRepository) : ITodoListService
     {
-        private readonly TodoContext _context = context;
+        private readonly ITodoListsRepository _todoListsRepository = todoListsRepository;
 
         public async Task<IList<TodoList>> GetTodoLists()
         {
-            return await _context.TodoList.ToListAsync();
+            return await _todoListsRepository.GetTodoLists();
         }
 
         public async Task<TodoList?> GetTodoList(long id)
         {
-            return await _context.TodoList.FindAsync(id);
+            return await _todoListsRepository.GetTodoList(id);
         }
-
         public async Task<TodoList> CreateTodoList(string name)
         {
-            var todoList = new TodoList { Name = name };
-            _context.TodoList.Add(todoList);
-            await _context.SaveChangesAsync();
-            return todoList;
+            return await _todoListsRepository.CreateTodoList(name);
         }
 
         public async Task<TodoList?> UpdateTodoList(long id, string name)
         {
-            var todoList = await _context.TodoList.FindAsync(id);
-            if (todoList == null)
-            {
-                return null;
-            }
-
-            todoList.Name = name;
-            await _context.SaveChangesAsync();
-            return todoList;
+            return await _todoListsRepository.UpdateTodoList(id, name);
         }
 
         public async Task<bool> DeleteTodoList(long id)
         {
-            var todoList = await _context.TodoList.FindAsync(id);
-            if (todoList == null)
-            {
-                return false;
-            }
-
-            _context.TodoList.Remove(todoList);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _todoListsRepository.DeleteTodoList(id);
         }
     }
 }
