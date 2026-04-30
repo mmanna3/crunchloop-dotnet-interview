@@ -19,9 +19,18 @@ builder
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
