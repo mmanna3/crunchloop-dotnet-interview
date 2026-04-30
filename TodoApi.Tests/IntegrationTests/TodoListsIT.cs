@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using TodoApi.Dtos;
-using TodoApi.Models;
+using TodoApi.Application.Dtos;
+using TodoApi.Domain.Models;
+using TodoApi.Persistence;
 
 namespace TodoApi.Tests.IntegrationTests;
 

@@ -1,54 +1,54 @@
 using Microsoft.EntityFrameworkCore;
-using TodoApi.Models;
+using TodoApi.Domain.Models;
+using TodoApi.Domain.Repositories;
 
-namespace TodoApi.Persistence
+namespace TodoApi.Persistence;
+
+public class TodoListsRepository(TodoContext context) : ITodoListsRepository
 {
-    public class TodoListsRepository(TodoContext context) : ITodoListsRepository
+    private readonly TodoContext _context = context;
+
+    public async Task<IList<TodoList>> GetTodoLists()
     {
-        private readonly TodoContext _context = context;
+        return await _context.TodoList.ToListAsync();
+    }
 
-        public async Task<IList<TodoList>> GetTodoLists()
+    public async Task<TodoList?> GetTodoList(long id)
+    {
+        return await _context.TodoList.FindAsync(id);
+    }
+
+    public async Task<TodoList> CreateTodoList(string name)
+    {
+        var todoList = new TodoList { Name = name };
+        _context.TodoList.Add(todoList);
+        await _context.SaveChangesAsync();
+        return todoList;
+    }
+
+    public async Task<TodoList?> UpdateTodoList(long id, string name)
+    {
+        var todoList = await _context.TodoList.FindAsync(id);
+        if (todoList == null)
         {
-            return await _context.TodoList.ToListAsync();
+            return null;
         }
 
-        public async Task<TodoList?> GetTodoList(long id)
+        todoList.Name = name;
+        await _context.SaveChangesAsync();
+        return todoList;
+    }
+
+    public async Task<bool> DeleteTodoList(long id)
+    {
+        var todoList = await _context.TodoList.FindAsync(id);
+        if (todoList == null)
         {
-            return await _context.TodoList.FindAsync(id);
+            return false;
         }
 
-        public async Task<TodoList> CreateTodoList(string name)
-        {
-            var todoList = new TodoList { Name = name };
-            _context.TodoList.Add(todoList);
-            await _context.SaveChangesAsync();
-            return todoList;
-        }
-
-        public async Task<TodoList?> UpdateTodoList(long id, string name)
-        {
-            var todoList = await _context.TodoList.FindAsync(id);
-            if (todoList == null)
-            {
-                return null;
-            }
-
-            todoList.Name = name;
-            await _context.SaveChangesAsync();
-            return todoList;
-        }
-
-        public async Task<bool> DeleteTodoList(long id)
-        {
-            var todoList = await _context.TodoList.FindAsync(id);
-            if (todoList == null)
-            {
-                return false;
-            }
-
-            _context.TodoList.Remove(todoList);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+        _context.TodoList.Remove(todoList);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

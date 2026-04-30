@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using TodoApi.Persistence;
 
 #nullable disable
 
-namespace TodoApi.Migrations
+namespace TodoApi.Persistence.Migrations
 {
     [DbContext(typeof(TodoContext))]
     [Migration("20260428192023_CreateTodoItem")]
@@ -23,7 +24,7 @@ namespace TodoApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TodoApi.Models.TodoItem", b =>
+            modelBuilder.Entity("TodoApi.Domain.Models.TodoItem", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,7 +49,7 @@ namespace TodoApi.Migrations
                     b.ToTable("TodoItem");
                 });
 
-            modelBuilder.Entity("TodoApi.Models.TodoList", b =>
+            modelBuilder.Entity("TodoApi.Domain.Models.TodoList", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,9 +66,9 @@ namespace TodoApi.Migrations
                     b.ToTable("TodoList");
                 });
 
-            modelBuilder.Entity("TodoApi.Models.TodoItem", b =>
+            modelBuilder.Entity("TodoApi.Domain.Models.TodoItem", b =>
                 {
-                    b.HasOne("TodoApi.Models.TodoList", "TodoList")
+                    b.HasOne("TodoApi.Domain.Models.TodoList", "TodoList")
                         .WithMany("TodoItems")
                         .HasForeignKey("TodoListId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -76,7 +77,7 @@ namespace TodoApi.Migrations
                     b.Navigation("TodoList");
                 });
 
-            modelBuilder.Entity("TodoApi.Models.TodoList", b =>
+            modelBuilder.Entity("TodoApi.Domain.Models.TodoList", b =>
                 {
                     b.Navigation("TodoItems");
                 });

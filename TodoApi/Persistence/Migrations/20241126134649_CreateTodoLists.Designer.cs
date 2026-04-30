@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using TodoApi.Persistence;
 
 #nullable disable
 
-namespace TodoApi.Migrations
+namespace TodoApi.Persistence.Migrations
 {
     [DbContext(typeof(TodoContext))]
     [Migration("20241126134649_CreateTodoLists")]
@@ -23,7 +24,7 @@ namespace TodoApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TodoApi.Models.TodoList", b =>
+            modelBuilder.Entity("TodoApi.Domain.Models.TodoList", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()

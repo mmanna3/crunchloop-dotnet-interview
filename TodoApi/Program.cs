@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using TodoApi.Application.Services;
+using TodoApi.Domain.Repositories;
 using TodoApi.Persistence;
-using TodoApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder
