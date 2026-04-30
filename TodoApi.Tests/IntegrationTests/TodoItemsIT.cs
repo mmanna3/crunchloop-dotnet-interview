@@ -88,6 +88,8 @@ public class TodoItemsIT
         var response = await client.GetAsync("/api/todolists/999/items");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo list not found", body);
     }
 
     [Fact]
@@ -112,6 +114,8 @@ public class TodoItemsIT
         var response = await client.GetAsync("/api/todolists/999/items/1");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo list not found", body);
     }
 
     [Fact]
@@ -122,6 +126,20 @@ public class TodoItemsIT
         var response = await client.GetAsync("/api/todolists/1/items/999");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo item not found", body);
+    }
+
+    [Fact]
+    public async Task GetTodoItem_WhenTodoItemBelongsToAnotherList_ReturnsBadRequest()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
+
+        var response = await client.GetAsync("/api/todolists/1/items/3");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo item does not belong to this list", body);
     }
 
     [Fact]
@@ -201,6 +219,21 @@ public class TodoItemsIT
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         var body = await response.Content.ReadAsStringAsync();
         Assert.Contains("Todo item not found", body);
+    }
+
+    [Fact]
+    public async Task PutTodoItem_WhenTodoItemBelongsToAnotherList_ReturnsBadRequest()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
+
+        var response = await client.PutAsJsonAsync(
+            "/api/todolists/1/items/3",
+            new UpdateItemDTO { Description = "Should not apply", IsCompleted = true }
+        );
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo item does not belong to this list", body);
     }
 
     [Fact]

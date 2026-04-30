@@ -23,7 +23,7 @@ public class TodoItemsController : ControllerBase
     {
         if (!TodoListExists(listId))
         {
-            return NotFound();
+            return NotFound("Todo list not found");
         }
 
         return Ok(await _context.TodoItem.Where(item => item.TodoListId == listId).ToListAsync());
@@ -33,14 +33,13 @@ public class TodoItemsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<TodoItem>> GetTodoItem(long listId, long id)
     {
-        if (!TodoListExists(listId))
+        var (failure, todoItem) = await ValidateTodoItemBelongsToListAndGetIt(listId, id);
+        if (failure != null)
         {
-            return NotFound();
+            return new ActionResult<TodoItem>(failure);
         }
 
-        var todoItem = await _context.TodoItem.SingleOrDefaultAsync(item => item.TodoListId == listId && item.Id == id);
-
-        return todoItem == null ? NotFound() : Ok(todoItem);
+        return Ok(todoItem!);
     }
 
     // PUT: api/todolists/5/items/1
@@ -48,19 +47,13 @@ public class TodoItemsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> PutTodoItem(long listId, long id, UpdateItemDTO payload)
     {
-        if (!TodoListExists(listId))
+        var (failure, todoItem) = await ValidateTodoItemBelongsToListAndGetIt(listId, id);
+        if (failure != null)
         {
-            return NotFound("Todo list not found");
+            return failure;
         }
 
-        var todoItem = await _context.TodoItem.SingleOrDefaultAsync(item => item.Id == id);
-
-        if (todoItem == null)
-        {
-            return NotFound("Todo item not found");
-        }
-
-        todoItem.Description = payload.Description;
+        todoItem!.Description = payload.Description;
         todoItem.IsCompleted = payload.IsCompleted;
         await _context.SaveChangesAsync();
 
@@ -87,26 +80,44 @@ public class TodoItemsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteTodoItem(long listId, long id)
     {
+        var (failure, todoItem) = await ValidateTodoItemBelongsToListAndGetIt(listId, id);
+        if (failure != null)
+        {
+            return failure;
+        }
+
+        _context.TodoItem.Remove(todoItem!);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Validates list existence, item existence, and that the item belongs to the list; returns the item on success.
+    /// </summary>
+    private async Task<(
+        ActionResult? Failure,
+        TodoItem? Item
+    )> ValidateTodoItemBelongsToListAndGetIt(long listId, long id)
+    {
         if (!TodoListExists(listId))
         {
-            return NotFound("Todo list not found");
+            return (NotFound("Todo list not found"), null);
         }
 
         var todoItem = await _context.TodoItem.SingleOrDefaultAsync(item => item.Id == id);
+
         if (todoItem == null)
         {
-            return NotFound("Todo item not found");
+            return (NotFound("Todo item not found"), null);
         }
 
         if (todoItem.TodoListId != listId)
         {
-            return BadRequest("Todo item does not belong to this list");
+            return (BadRequest("Todo item does not belong to this list"), null);
         }
 
-        _context.TodoItem.Remove(todoItem);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        return (null, todoItem);
     }
 
     private bool TodoListExists(long id)
