@@ -35,9 +35,9 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     // PUT: api/todolists/5
     // To protect from over-posting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<ActionResult> PutTodoList(long id, UpdateTodoList payload)
+    public async Task<ActionResult> PutTodoList(long id, UpdateListDTO payload)
     {
-        var todoList = await _todoListService.UpdateTodoList(id, payload.Name);
+        var todoList = await _todoListService.UpdateTodoList(id, payload);
         if (todoList == null)
         {
             return NotFound();
@@ -49,9 +49,9 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
     // POST: api/todolists
     // To protect from over-posting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<TodoList>> PostTodoList(CreateTodoList payload)
+    public async Task<ActionResult<TodoList>> PostTodoList(CreateListDTO payload)
     {
-        var todoList = await _todoListService.CreateTodoList(payload.Name);
+        var todoList = await _todoListService.CreateTodoList(payload);
 
         return CreatedAtAction("GetTodoList", new { id = todoList.Id }, todoList);
     }

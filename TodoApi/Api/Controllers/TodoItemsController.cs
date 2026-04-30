@@ -38,8 +38,7 @@ public class TodoItemsController : ControllerBase
             return NotFound();
         }
 
-        var todoItem = await _context.TodoItem
-                                .SingleOrDefaultAsync(item => item.TodoListId == listId && item.Id == id);
+        var todoItem = await _context.TodoItem.SingleOrDefaultAsync(item => item.TodoListId == listId && item.Id == id);
 
         return todoItem == null ? NotFound() : Ok(todoItem);
     }
@@ -64,7 +63,7 @@ public class TodoItemsController : ControllerBase
 
 
     [HttpPost]
-    public async Task<ActionResult<TodoItem>> PostTodoItem(long listId, CreateTodoItemDto payload)
+    public async Task<ActionResult<TodoItem>> PostTodoItem(long listId, CreateItemDTO payload)
     {
         if (!TodoListExists(listId))
         {
@@ -76,7 +75,7 @@ public class TodoItemsController : ControllerBase
         _context.TodoItem.Add(todoItem);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction("GetTodoItem", new { listId = listId, id = todoItem.Id }, todoItem);
+        return CreatedAtAction("GetTodoItem", new { listId, id = todoItem.Id }, todoItem);
     }
 
     // DELETE: api/todolists/5

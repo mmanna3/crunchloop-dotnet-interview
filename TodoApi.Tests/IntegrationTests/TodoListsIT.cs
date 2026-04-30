@@ -48,7 +48,7 @@ public class TodoListsIT
         using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
 
         var response = await client.GetAsync("/api/todolists");
-        var todoLists = await response.Content.ReadFromJsonAsync<List<TodoList>>();
+        var todoLists = await response.Content.ReadFromJsonAsync<List<TodoListDTO>>();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(todoLists);
@@ -61,7 +61,7 @@ public class TodoListsIT
         using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
 
         var response = await client.GetAsync("/api/todolists/1");
-        var todoList = await response.Content.ReadFromJsonAsync<TodoList>();
+        var todoList = await response.Content.ReadFromJsonAsync<TodoListDTO>();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(todoList);
@@ -85,9 +85,9 @@ public class TodoListsIT
 
         var response = await client.PutAsJsonAsync(
             "/api/todolists/2",
-            new UpdateTodoList { Name = "Changed Task List 2" }
+            new UpdateListDTO { Name = "Changed Task List 2" }
         );
-        var todoList = await response.Content.ReadFromJsonAsync<TodoList>();
+        var todoList = await response.Content.ReadFromJsonAsync<TodoListDTO>();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(todoList);
@@ -101,7 +101,7 @@ public class TodoListsIT
 
         var response = await client.PutAsJsonAsync(
             "/api/todolists/999",
-            new UpdateTodoList { Name = "Updated Task List" }
+            new UpdateListDTO { Name = "Updated Task List" }
         );
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -112,8 +112,8 @@ public class TodoListsIT
     {
         using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
 
-        var response = await client.PostAsJsonAsync("/api/todolists", new CreateTodoList { Name = "Task List 3" });
-        var todoList = await response.Content.ReadFromJsonAsync<TodoList>();
+        var response = await client.PostAsJsonAsync("/api/todolists", new CreateListDTO { Name = "Task List 3" });
+        var todoList = await response.Content.ReadFromJsonAsync<TodoListDTO>();
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(todoList);

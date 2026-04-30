@@ -1,12 +1,13 @@
+using TodoApi.Application.Dtos;
 using TodoApi.Domain.Models;
 
 namespace TodoApi.Application.Services;
 
 public interface ITodoListService
 {
-    Task<IList<TodoList>> GetTodoLists();
-    Task<TodoList?> GetTodoList(long id);
-    Task<TodoList> CreateTodoList(string name);
-    Task<TodoList?> UpdateTodoList(long id, string name);
+    Task<IReadOnlyList<TodoListDTO>> GetTodoLists();
+    Task<TodoListDTO?> GetTodoList(long id);
+    Task<TodoListDTO> CreateTodoList(CreateListDTO payload);
+    Task<TodoListDTO?> UpdateTodoList(long id, UpdateListDTO payload);
     Task<bool> DeleteTodoList(long id);
 }

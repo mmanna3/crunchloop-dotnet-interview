@@ -8,7 +8,7 @@ public class TodoListsRepository(TodoContext context) : ITodoListsRepository
 {
     private readonly TodoContext _context = context;
 
-    public async Task<IList<TodoList>> GetTodoLists()
+    public async Task<IReadOnlyList<TodoList>> GetTodoLists()
     {
         return await _context.TodoList.ToListAsync();
     }
@@ -18,15 +18,14 @@ public class TodoListsRepository(TodoContext context) : ITodoListsRepository
         return await _context.TodoList.FindAsync(id);
     }
 
-    public async Task<TodoList> CreateTodoList(string name)
+    public async Task<TodoList> CreateTodoList(TodoList payload)
     {
-        var todoList = new TodoList { Name = name };
-        _context.TodoList.Add(todoList);
+        _context.TodoList.Add(payload);
         await _context.SaveChangesAsync();
-        return todoList;
+        return payload;
     }
 
-    public async Task<TodoList?> UpdateTodoList(long id, string name)
+    public async Task<TodoList?> UpdateTodoList(long id, TodoList payload)
     {
         var todoList = await _context.TodoList.FindAsync(id);
         if (todoList == null)
@@ -34,7 +33,7 @@ public class TodoListsRepository(TodoContext context) : ITodoListsRepository
             return null;
         }
 
-        todoList.Name = name;
+        todoList.Name = payload.Name;
         await _context.SaveChangesAsync();
         return todoList;
     }

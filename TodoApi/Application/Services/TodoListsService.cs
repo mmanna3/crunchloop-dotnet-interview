@@ -1,3 +1,4 @@
+using TodoApi.Application.Dtos;
 using TodoApi.Domain.Models;
 using TodoApi.Domain.Repositories;
 
@@ -7,23 +8,42 @@ public class TodoListService(ITodoListsRepository todoListsRepository) : ITodoLi
 {
     private readonly ITodoListsRepository _todoListsRepository = todoListsRepository;
 
-    public async Task<IList<TodoList>> GetTodoLists()
+    public async Task<IReadOnlyList<TodoListDTO>> GetTodoLists()
     {
-        return await _todoListsRepository.GetTodoLists();
+        var lists = await _todoListsRepository.GetTodoLists();
+        var result = lists
+            .Select(list => new TodoListDTO { Id = list.Id, Name = list.Name })
+            .ToList();
+        return result;
     }
 
-    public async Task<TodoList?> GetTodoList(long id)
+    public async Task<TodoListDTO?> GetTodoList(long id)
     {
-        return await _todoListsRepository.GetTodoList(id);
-    }
-    public async Task<TodoList> CreateTodoList(string name)
-    {
-        return await _todoListsRepository.CreateTodoList(name);
+        var list = await _todoListsRepository.GetTodoList(id);
+        if (list == null)
+        {
+            return null;
+        }
+        return new TodoListDTO { Id = list.Id, Name = list.Name };
     }
 
-    public async Task<TodoList?> UpdateTodoList(long id, string name)
+    public async Task<TodoListDTO> CreateTodoList(CreateListDTO payload)
     {
-        return await _todoListsRepository.UpdateTodoList(id, name);
+        var list = await _todoListsRepository.CreateTodoList(new TodoList { Name = payload.Name });
+        return new TodoListDTO { Id = list.Id, Name = list.Name };
+    }
+
+    public async Task<TodoListDTO?> UpdateTodoList(long id, UpdateListDTO payload)
+    {
+        var updatedTodoList = await _todoListsRepository.UpdateTodoList(
+            id,
+            new TodoList { Name = payload.Name }
+        );
+        if (updatedTodoList == null)
+        {
+            return null;
+        }
+        return new TodoListDTO { Id = updatedTodoList.Id, Name = updatedTodoList.Name };
     }
 
     public async Task<bool> DeleteTodoList(long id)
