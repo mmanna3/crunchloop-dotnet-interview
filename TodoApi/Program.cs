@@ -14,7 +14,12 @@ builder
     .AddScoped<ITodoListsRepository, TodoListsRepository>()
     .AddScoped<ITodoItemsRepository, TodoItemsRepository>()
     .AddEndpointsApiExplorer()
-    .AddControllers();
+    .AddControllers()
+    .Services.AddCors(options =>
+        options.AddDefaultPolicy(policy =>
+            policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()
+        )
+    );
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -23,6 +28,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseCors();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
