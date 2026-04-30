@@ -56,6 +56,14 @@ public class TodoItemsIT
                 TodoListId = 1,
             }
         );
+        context.TodoItem.Add(
+            new TodoItem
+            {
+                Id = 3,
+                Description = "Item on list 2",
+                TodoListId = 2,
+            }
+        );
     }
 
     [Fact]
@@ -146,5 +154,98 @@ public class TodoItemsIT
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         var body = await response.Content.ReadAsStringAsync();
         Assert.Contains("Todo list not found", body);
+    }
+
+    [Fact]
+    public async Task PutTodoItem_WhenCalled_UpdatesTheTodoItem()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
+
+        var response = await client.PutAsJsonAsync(
+            "/api/todolists/1/items/1",
+            new UpdateItemDTO { Description = "Updated item 1", IsCompleted = true }
+        );
+        var item = await response.Content.ReadFromJsonAsync<TodoItem>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(item);
+        Assert.Equal("Updated item 1", item.Description);
+        Assert.True(item.IsCompleted);
+    }
+
+    [Fact]
+    public async Task PutTodoItem_WhenTodoListDoesntExist_ReturnsNotFound()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
+
+        var response = await client.PutAsJsonAsync(
+            "/api/todolists/999/items/1",
+            new UpdateItemDTO { Description = "X", IsCompleted = false }
+        );
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo list not found", body);
+    }
+
+    [Fact]
+    public async Task PutTodoItem_WhenTodoItemDoesntExist_ReturnsNotFound()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
+
+        var response = await client.PutAsJsonAsync(
+            "/api/todolists/1/items/999",
+            new UpdateItemDTO { Description = "X", IsCompleted = false }
+        );
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo item not found", body);
+    }
+
+    [Fact]
+    public async Task DeleteTodoItem_WhenCalled_RemovesTodoItem()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
+
+        var response = await client.DeleteAsync("/api/todolists/1/items/1");
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeleteTodoItem_WhenTodoListDoesntExist_ReturnsNotFound()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
+
+        var response = await client.DeleteAsync("/api/todolists/999/items/1");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo list not found", body);
+    }
+
+    [Fact]
+    public async Task DeleteTodoItem_WhenTodoItemDoesntExist_ReturnsNotFound()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
+
+        var response = await client.DeleteAsync("/api/todolists/1/items/999");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo item not found", body);
+    }
+
+    [Fact]
+    public async Task DeleteTodoItem_WhenTodoItemBelongsToAnotherList_ReturnsBadRequest()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
+
+        var response = await client.DeleteAsync("/api/todolists/1/items/3");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Todo item does not belong to this list", body);
     }
 }

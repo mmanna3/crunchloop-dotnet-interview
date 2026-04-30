@@ -43,24 +43,29 @@ public class TodoItemsController : ControllerBase
         return todoItem == null ? NotFound() : Ok(todoItem);
     }
 
-    // PUT: api/todolists/5
+    // PUT: api/todolists/5/items/1
     // To protect from over-posting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    // [HttpPut("{id}")]
-    // public async Task<ActionResult> PutTodoList(long id, UpdateTodoList payload)
-    // {
-    //     var todoList = await _context.TodoList.FindAsync(id);
+    [HttpPut("{id}")]
+    public async Task<ActionResult> PutTodoItem(long listId, long id, UpdateItemDTO payload)
+    {
+        if (!TodoListExists(listId))
+        {
+            return NotFound("Todo list not found");
+        }
 
-    //     if (todoList == null)
-    //     {
-    //         return NotFound();
-    //     }
+        var todoItem = await _context.TodoItem.SingleOrDefaultAsync(item => item.Id == id);
 
-    //     todoList.Name = payload.Name;
-    //     await _context.SaveChangesAsync();
+        if (todoItem == null)
+        {
+            return NotFound("Todo item not found");
+        }
 
-    //     return Ok(todoList);
-    // }
+        todoItem.Description = payload.Description;
+        todoItem.IsCompleted = payload.IsCompleted;
+        await _context.SaveChangesAsync();
 
+        return Ok(todoItem);
+    }
 
     [HttpPost]
     public async Task<ActionResult<TodoItem>> PostTodoItem(long listId, CreateItemDTO payload)
@@ -79,25 +84,30 @@ public class TodoItemsController : ControllerBase
     }
 
     // DELETE: api/todolists/5
-    // [HttpDelete("{id}")]
-    // public async Task<ActionResult> DeleteTodoList(long id)
-    // {
-    //     var todoList = await _context.TodoList.FindAsync(id);
-    //     if (todoList == null)
-    //     {
-    //         return NotFound();
-    //     }
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteTodoItem(long listId, long id)
+    {
+        if (!TodoListExists(listId))
+        {
+            return NotFound("Todo list not found");
+        }
 
-    //     _context.TodoList.Remove(todoList);
-    //     await _context.SaveChangesAsync();
+        var todoItem = await _context.TodoItem.SingleOrDefaultAsync(item => item.Id == id);
+        if (todoItem == null)
+        {
+            return NotFound("Todo item not found");
+        }
 
-    //     return NoContent();
-    // }
+        if (todoItem.TodoListId != listId)
+        {
+            return BadRequest("Todo item does not belong to this list");
+        }
 
-    // private bool TodoListExists(long id)
-    // {
-    //     return (_context.TodoList?.Any(e => e.Id == id)).GetValueOrDefault();
-    // }
+        _context.TodoItem.Remove(todoItem);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
 
     private bool TodoListExists(long id)
     {
