@@ -4,6 +4,7 @@ namespace TodoApi.Domain.Repositories;
 
 public interface ITodoListsRepository
 {
+    Task<bool> TodoListExists(long listId);
     Task<IReadOnlyList<TodoList>> GetTodoLists();
     Task<TodoList?> GetTodoList(long id);
     Task<TodoList> CreateTodoList(TodoList payload);

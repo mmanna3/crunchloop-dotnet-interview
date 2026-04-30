@@ -72,12 +72,12 @@ public class TodoItemsIT
         using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
 
         var response = await client.GetAsync("/api/todolists/1/items");
-        var items = await response.Content.ReadFromJsonAsync<List<TodoItem>>();
+        var items = await response.Content.ReadFromJsonAsync<List<TodoItemDTO>>();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(items);
         Assert.Equal(2, items.Count);
-        Assert.All(items, i => Assert.Equal(1L, i.TodoListId));
+        Assert.All(items, i => Assert.True(i.Id > 0));
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class TodoItemsIT
         using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
 
         var response = await client.GetAsync("/api/todolists/1/items/1");
-        var item = await response.Content.ReadFromJsonAsync<TodoItem>();
+        var item = await response.Content.ReadFromJsonAsync<TodoItemDTO>();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(item);
@@ -151,12 +151,12 @@ public class TodoItemsIT
             "/api/todolists/1/items",
             new CreateItemDTO { Description = "New item" }
         );
-        var item = await response.Content.ReadFromJsonAsync<TodoItem>();
+        var item = await response.Content.ReadFromJsonAsync<TodoItemDTO>();
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(item);
         Assert.Equal("New item", item.Description);
-        Assert.Equal(1L, item.TodoListId);
+        Assert.True(item.Id > 0);
     }
 
     [Fact]
@@ -183,7 +183,7 @@ public class TodoItemsIT
             "/api/todolists/1/items/1",
             new UpdateItemDTO { Description = "Updated item 1", IsCompleted = true }
         );
-        var item = await response.Content.ReadFromJsonAsync<TodoItem>();
+        var item = await response.Content.ReadFromJsonAsync<TodoItemDTO>();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(item);

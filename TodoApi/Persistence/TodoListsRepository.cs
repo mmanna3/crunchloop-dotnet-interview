@@ -8,6 +8,11 @@ public class TodoListsRepository(TodoContext context) : ITodoListsRepository
 {
     private readonly TodoContext _context = context;
 
+    public async Task<bool> TodoListExists(long listId)
+    {
+        return await _context.TodoList.AnyAsync(list => list.Id == listId);
+    }
+
     public async Task<IReadOnlyList<TodoList>> GetTodoLists()
     {
         return await _context.TodoList.ToListAsync();

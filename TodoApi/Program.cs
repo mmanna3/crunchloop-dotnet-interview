@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TodoApi.Api.Middleware;
 using TodoApi.Application.Services;
 using TodoApi.Domain.Repositories;
 using TodoApi.Persistence;
@@ -9,7 +10,9 @@ builder
         opt.UseSqlServer(builder.Configuration.GetConnectionString("TodoContext"))
     )
     .AddScoped<ITodoListService, TodoListService>()
+    .AddScoped<ITodoItemsService, TodoItemsService>()
     .AddScoped<ITodoListsRepository, TodoListsRepository>()
+    .AddScoped<ITodoItemsRepository, TodoItemsRepository>()
     .AddEndpointsApiExplorer()
     .AddControllers();
 
@@ -18,6 +21,7 @@ builder.Logging.AddConsole();
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
