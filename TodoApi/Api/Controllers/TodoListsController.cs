@@ -7,9 +7,13 @@ namespace TodoApi.Api.Controllers;
 
 [Route("api/todolists")]
 [ApiController]
-public class TodoListsController(ITodoListService todoListService) : ControllerBase
+public class TodoListsController(
+    ITodoListService todoListService,
+    ICompleteAllItemsService completeAllItemsService
+) : ControllerBase
 {
     private readonly ITodoListService _todoListService = todoListService;
+    private readonly ICompleteAllItemsService _completeAllItemsService = completeAllItemsService;
 
     // GET: api/todolists
     [HttpGet]
@@ -67,5 +71,16 @@ public class TodoListsController(ITodoListService todoListService) : ControllerB
         }
 
         return NoContent();
+    }
+
+    // POST: api/todolists/5/complete-all-items
+    [HttpPost("{listId}/complete-all-items")]
+    public async Task<ActionResult<CompleteAllItemsResponseDTO>> CompleteAllItems(
+        long listId,
+        CompleteAllItemsRequestDTO payload
+    )
+    {
+        var result = await _completeAllItemsService.StartAsync(listId, payload.ConnectionId);
+        return Accepted(result);
     }
 }

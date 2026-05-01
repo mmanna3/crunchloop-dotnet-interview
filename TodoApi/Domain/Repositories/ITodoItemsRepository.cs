@@ -9,4 +9,7 @@ public interface ITodoItemsRepository
     Task<TodoItem> CreateTodoItem(TodoItem payload);
     Task<TodoItem> UpdateTodoItem(TodoItem payload);
     Task DeleteTodoItem(TodoItem payload);
+    Task<int> CountIncompleteByListIdAsync(long listId);
+    Task<IReadOnlyList<long>> GetIncompleteItemIdsBatchAsync(long listId, int batchSize);
+    Task CompleteItemsByIdsAsync(IReadOnlyList<long> ids);
 }

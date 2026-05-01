@@ -1,6 +1,9 @@
+using System.Threading.Channels;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.Api.Hubs;
 using TodoApi.Api.Middleware;
 using TodoApi.Application.Services;
+using TodoApi.Application.Workers;
 using TodoApi.Domain.Repositories;
 using TodoApi.Persistence;
 
@@ -11,14 +14,23 @@ builder
     )
     .AddScoped<ITodoListService, TodoListService>()
     .AddScoped<ITodoItemsService, TodoItemsService>()
+    .AddScoped<ICompleteAllItemsService, CompleteAllItemsService>()
     .AddScoped<ITodoListsRepository, TodoListsRepository>()
     .AddScoped<ITodoItemsRepository, TodoItemsRepository>()
-    .AddEndpointsApiExplorer()
+    .AddSingleton(Channel.CreateUnbounded<CompleteAllItemsJob>())
+    .AddHostedService<CompleteAllItemsWorker>()
+    .AddSignalR()
+    .Services.AddEndpointsApiExplorer()
     .AddControllers()
     .Services.AddCors(options =>
         options.AddDefaultPolicy(policy =>
-            policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()
-        )
+        {
+            policy
+                .SetIsOriginAllowed(_ => true)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        })
     );
 
 builder.Logging.ClearProviders();
@@ -39,6 +51,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<TodoHub>("/hubs/todo");
 app.Run();
 
 public partial class Program { }

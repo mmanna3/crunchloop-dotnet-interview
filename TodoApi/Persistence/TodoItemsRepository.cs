@@ -36,4 +36,20 @@ public class TodoItemsRepository(TodoContext context) : ITodoItemsRepository
         _context.TodoItem.Remove(payload);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<int> CountIncompleteByListIdAsync(long listId) =>
+        await _context.TodoItem.CountAsync(i => i.TodoListId == listId && !i.IsCompleted);
+
+    public async Task<IReadOnlyList<long>> GetIncompleteItemIdsBatchAsync(long listId, int batchSize) =>
+        await _context.TodoItem
+            .Where(i => i.TodoListId == listId && !i.IsCompleted)
+            .OrderBy(i => i.Id)
+            .Take(batchSize)
+            .Select(i => i.Id)
+            .ToListAsync();
+
+    public async Task CompleteItemsByIdsAsync(IReadOnlyList<long> ids) =>
+        await _context
+            .TodoItem.Where(i => ids.Contains(i.Id))
+            .ExecuteUpdateAsync(s => s.SetProperty(i => i.IsCompleted, true));
 }
