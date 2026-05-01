@@ -1,6 +1,6 @@
 namespace TodoApi.Domain.Models;
 
-public class TodoItem
+public class TodoItem : SyncEntity
 {
     public long Id { get; set; }
     public required string Description { get; set; }
