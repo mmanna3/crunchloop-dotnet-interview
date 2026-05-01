@@ -1,6 +1,7 @@
 using System.Threading.Channels;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Api.Hubs;
+using TodoApi.Application;
 using TodoApi.Api.Middleware;
 using TodoApi.Application.Services;
 using TodoApi.Application.Workers;
@@ -8,6 +9,9 @@ using TodoApi.Domain.Repositories;
 using TodoApi.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.Configure<WorkerSettings>(settings =>
+    builder.Configuration.GetSection("Worker").Bind(settings)
+);
 builder
     .Services.AddDbContext<TodoContext>(opt =>
         opt.UseSqlServer(builder.Configuration.GetConnectionString("TodoContext"))

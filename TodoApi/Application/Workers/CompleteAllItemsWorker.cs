@@ -1,5 +1,6 @@
 using System.Threading.Channels;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using TodoApi.Api.Hubs;
 using TodoApi.Application.Dtos;
 using TodoApi.Domain.Repositories;
@@ -17,10 +18,11 @@ public class CompleteAllItemsJob
 public class CompleteAllItemsWorker(
     Channel<CompleteAllItemsJob> channel,
     IServiceScopeFactory scopeFactory,
-    IHubContext<TodoHub> hubContext
+    IHubContext<TodoHub> hubContext,
+    IOptions<WorkerSettings> workerSettings
 ) : BackgroundService
 {
-    private const int BatchSize = 2;
+    private readonly WorkerSettings _settings = workerSettings.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -38,7 +40,7 @@ public class CompleteAllItemsWorker(
 
         while (!ct.IsCancellationRequested)
         {
-            var ids = await repo.GetIncompleteItemIdsBatchAsync(job.ListId, BatchSize);
+            var ids = await repo.GetIncompleteItemIdsBatchAsync(job.ListId, _settings.BatchSize);
             if (ids.Count == 0)
                 break;
 
@@ -54,7 +56,9 @@ public class CompleteAllItemsWorker(
                 ids,
                 ct
             );
-            await Task.Delay(2000, ct);
+
+            if (_settings.DelayMilliseconds > 0)
+                await Task.Delay(_settings.DelayMilliseconds, ct);
         }
 
         if (processed < job.Total || job.Total == 0)
