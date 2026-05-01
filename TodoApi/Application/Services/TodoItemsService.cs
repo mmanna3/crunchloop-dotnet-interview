@@ -5,8 +5,10 @@ using TodoApi.Domain.Repositories;
 
 namespace TodoApi.Application.Services;
 
-public class TodoItemsService(ITodoItemsRepository todoItemsRepository, ITodoListsRepository todoListsRepository)
-    : ITodoItemsService
+public class TodoItemsService(
+    ITodoItemsRepository todoItemsRepository,
+    ITodoListsRepository todoListsRepository
+) : ITodoItemsService
 {
     private static class ExceptionMessages
     {

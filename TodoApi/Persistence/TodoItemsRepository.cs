@@ -40,9 +40,12 @@ public class TodoItemsRepository(TodoContext context) : ITodoItemsRepository
     public async Task<int> CountIncompleteByListIdAsync(long listId) =>
         await _context.TodoItem.CountAsync(i => i.TodoListId == listId && !i.IsCompleted);
 
-    public async Task<IReadOnlyList<long>> GetIncompleteItemIdsBatchAsync(long listId, int batchSize) =>
-        await _context.TodoItem
-            .Where(i => i.TodoListId == listId && !i.IsCompleted)
+    public async Task<IReadOnlyList<long>> GetIncompleteItemIdsBatchAsync(
+        long listId,
+        int batchSize
+    ) =>
+        await _context
+            .TodoItem.Where(i => i.TodoListId == listId && !i.IsCompleted)
             .OrderBy(i => i.Id)
             .Take(batchSize)
             .Select(i => i.Id)

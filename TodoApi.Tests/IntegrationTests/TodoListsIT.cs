@@ -144,7 +144,10 @@ public class TodoListsIT
     {
         using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContext);
 
-        var response = await client.PostAsJsonAsync("/api/todolists", new CreateListDTO { Name = "Task List 3" });
+        var response = await client.PostAsJsonAsync(
+            "/api/todolists",
+            new CreateListDTO { Name = "Task List 3" }
+        );
         var todoList = await response.Content.ReadFromJsonAsync<TodoListDTO>();
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);

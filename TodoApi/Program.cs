@@ -1,8 +1,8 @@
 using System.Threading.Channels;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Api.Hubs;
-using TodoApi.Application;
 using TodoApi.Api.Middleware;
+using TodoApi.Application;
 using TodoApi.Application.Services;
 using TodoApi.Application.Workers;
 using TodoApi.Domain.Repositories;
