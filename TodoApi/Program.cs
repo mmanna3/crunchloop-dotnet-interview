@@ -1,8 +1,12 @@
 using System.Threading.Channels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http;
+using Polly;
+using Polly.Extensions.Http;
 using TodoApi.Api.Hubs;
 using TodoApi.Api.Middleware;
 using TodoApi.Application;
+using TodoApi.Application.ExternalApi;
 using TodoApi.Application.Services;
 using TodoApi.Application.Workers;
 using TodoApi.Domain.Repositories;
@@ -12,6 +16,33 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<WorkerSettings>(settings =>
     builder.Configuration.GetSection("Worker").Bind(settings)
 );
+
+var syncSection = builder.Configuration.GetSection("Sync");
+var syncSettings = syncSection.Get<SyncSettings>() ?? new SyncSettings();
+builder.Services.Configure<SyncSettings>(syncSection);
+
+var retryPolicy = HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .WaitAndRetryAsync(
+        syncSettings.MaxRetryAttempts,
+        attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt - 1))
+    );
+
+var circuitBreakerPolicy = HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .CircuitBreakerAsync(
+        syncSettings.CircuitBreakerThreshold,
+        TimeSpan.FromSeconds(syncSettings.CircuitBreakerDurationSeconds)
+    );
+
+builder
+    .Services.AddHttpClient<IExternalTodoApiClient, ExternalTodoApiClient>(client =>
+    {
+        if (!string.IsNullOrEmpty(syncSettings.ExternalApiBaseUrl))
+            client.BaseAddress = new Uri(syncSettings.ExternalApiBaseUrl);
+    })
+    .AddPolicyHandler(retryPolicy)
+    .AddPolicyHandler(circuitBreakerPolicy);
 builder
     .Services.AddDbContext<TodoContext>(opt =>
         opt.UseSqlServer(builder.Configuration.GetConnectionString("TodoContext"))
