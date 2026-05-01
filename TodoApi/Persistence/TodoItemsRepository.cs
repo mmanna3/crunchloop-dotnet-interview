@@ -54,5 +54,8 @@ public class TodoItemsRepository(TodoContext context) : ITodoItemsRepository
     public async Task CompleteItemsByIdsAsync(IReadOnlyList<long> ids) =>
         await _context
             .TodoItem.Where(i => ids.Contains(i.Id))
-            .ExecuteUpdateAsync(s => s.SetProperty(i => i.IsCompleted, true));
+            .ExecuteUpdateAsync(s =>
+                s.SetProperty(i => i.IsCompleted, true)
+                    .SetProperty(i => i.UpdatedAt, DateTime.UtcNow)
+            );
 }
