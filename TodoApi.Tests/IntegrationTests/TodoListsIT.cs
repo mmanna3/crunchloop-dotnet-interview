@@ -42,6 +42,38 @@ public class TodoListsIT
         context.TodoList.Add(new TodoList { Id = 2, Name = "Task List 2" });
     }
 
+    private static void PopulateDatabaseContextWithIncompleteItems(TodoContext context)
+    {
+        PopulateDatabaseContext(context);
+        context.TodoItem.Add(
+            new TodoItem
+            {
+                Id = 1,
+                Description = "Incomplete task",
+                TodoListId = 1,
+                IsCompleted = false,
+            }
+        );
+        context.TodoItem.Add(
+            new TodoItem
+            {
+                Id = 2,
+                Description = "Complete task",
+                TodoListId = 1,
+                IsCompleted = true,
+            }
+        );
+        context.TodoItem.Add(
+            new TodoItem
+            {
+                Id = 3,
+                Description = "Another incomplete",
+                TodoListId = 1,
+                IsCompleted = false,
+            }
+        );
+    }
+
     [Fact]
     public async Task GetTodoList_WhenCalled_ReturnsTodoListList()
     {
@@ -138,5 +170,22 @@ public class TodoListsIT
         var response = await client.DeleteAsync("/api/todolists/999");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CompleteAllItems_WhenListExists_ReturnsAcceptedWithTotals()
+    {
+        using var client = CreateClientWithDatabaseSeed(PopulateDatabaseContextWithIncompleteItems);
+
+        var response = await client.PostAsJsonAsync(
+            "/api/todolists/1/complete-all-items",
+            new CompleteAllItemsRequestDTO { ConnectionId = "test-signalr-connection" }
+        );
+        var body = await response.Content.ReadFromJsonAsync<CompleteAllItemsResponseDTO>();
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        Assert.NotNull(body);
+        Assert.True(Guid.TryParse(body.OperationId, out _), body.OperationId);
+        Assert.Equal(2, body.Total);
     }
 }
