@@ -11,6 +11,9 @@ using TodoApi.Tests.Helpers;
 
 namespace TodoApi.Tests.IntegrationTests;
 
+// SyncService holds a static SemaphoreSlim to prevent concurrent syncs across scoped instances.
+// Tests in this collection run sequentially to avoid competing for that shared semaphore.
+[Collection("Sync")]
 public class SyncServiceIT
 {
     // Shared baseline for “last sync” in conflict scenarios
