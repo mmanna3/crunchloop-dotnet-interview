@@ -55,6 +55,7 @@ builder
     .AddScoped<ITodoItemsRepository, TodoItemsRepository>()
     .AddSingleton(Channel.CreateUnbounded<CompleteAllItemsJob>())
     .AddHostedService<CompleteAllItemsWorker>()
+    .AddHostedService<SyncWorker>()
     .AddSignalR()
     .Services.AddEndpointsApiExplorer()
     .AddControllers()
