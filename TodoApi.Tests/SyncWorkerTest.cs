@@ -59,8 +59,7 @@ public class SyncWorkerTest
     public async Task ExecuteAsync_WhenSyncThrows_ContinuesAndInvokesSyncAgain()
     {
         var (sync, _, worker) = CreateSut();
-        sync
-            .SetupSequence(s => s.SyncAsync(It.IsAny<CancellationToken>()))
+        sync.SetupSequence(s => s.SyncAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("boom"))
             .ReturnsAsync(new SyncResult());
 
