@@ -7,12 +7,4 @@ public class SyncSettings
     public int MaxRetryAttempts { get; set; } = 3;
     public int CircuitBreakerThreshold { get; set; } = 5;
     public int CircuitBreakerDurationSeconds { get; set; } = 30;
-    public ConflictResolution ConflictResolution { get; set; } = ConflictResolution.LocalWins;
-}
-
-public enum ConflictResolution
-{
-    LocalWins,
-    ExternalWins,
-    LastWriteWins,
 }

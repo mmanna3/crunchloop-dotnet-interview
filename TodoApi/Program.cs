@@ -50,6 +50,7 @@ builder
     .AddScoped<ITodoListService, TodoListService>()
     .AddScoped<ITodoItemsService, TodoItemsService>()
     .AddScoped<ICompleteAllItemsService, CompleteAllItemsService>()
+    .AddScoped<ISyncService, SyncService>()
     .AddScoped<ITodoListsRepository, TodoListsRepository>()
     .AddScoped<ITodoItemsRepository, TodoItemsRepository>()
     .AddSingleton(Channel.CreateUnbounded<CompleteAllItemsJob>())
